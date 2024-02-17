@@ -17,11 +17,11 @@ model = keras.models.Sequential([
     keras.layers.Dense(10)
 ])
 
-predictions = model(training_images[:1]).numpy()
+predictions = model(training_images)
 
 tf.nn.softmax(predictions).numpy()
 loss_fn = tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True)
-loss_fn(training_labels[:1], predictions).numpy()
+loss_fn(training_labels, predictions)
 
 model.compile(optimizer='adam',
               loss=loss_fn,
@@ -36,4 +36,4 @@ probability_model = tf.keras.Sequential([
   tf.keras.layers.Softmax()
 ])
 
-probability_model(testing_images[:5])
+probability_model(testing_images)
