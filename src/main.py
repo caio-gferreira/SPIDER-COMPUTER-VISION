@@ -1,5 +1,5 @@
 import tensorflow as tf
-from tensorflow.keras import layers, models
+from tensorflow import keras
 from services.open_cv_proccessor import OpenCVProcessor
 
 image_processor = OpenCVProcessor()
@@ -13,18 +13,30 @@ testing_images, testing_labels = image_processor.get_proccessed_images(test_data
 train_datasets = tf.data.Dataset.from_tensor_slices((training_images, training_labels)).shuffle(10000).batch(32)
 test_datasets = tf.data.Dataset.from_tensor_slices((testing_images, testing_labels)).batch(32)
 
-# Definir modelo CNN
-model = models.Sequential()
-model.add(layers.Conv2D(32, (3, 3), activation='relu', input_shape=(28, 28, 1)))
-model.add(layers.Flatten())
-model.add(layers.Dense(64, activation='relu'))
-model.add(layers.Dense(10, activation='softmax'))
+model = keras.models.Sequential([
+    keras.layers.Flatten(input_shape=(28, 28)),
+    keras.layers.Dense(128, activation='relu'),
+    keras.layers.Dropout(0.2),
+    keras.layers.Dense(10)
+])
+
+predictions = model(training_images[:1]).numpy()
+
+tf.nn.softmax(predictions).numpy()
+loss_fn = tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True)
+loss_fn(training_labels[:1], predictions).numpy()
 
 model.compile(optimizer='adam',
-              loss='sparse_categorical_crossentropy',
+              loss=loss_fn,
               metrics=['accuracy'])
 
-model.fit(train_datasets, epochs=5)
+model.fit(training_images, training_labels, epochs=10)
 
-test_loss, test_acc = model.evaluate(test_datasets)
-print('\nAccuracy:', test_acc)
+model.evaluate(testing_images,  testing_labels, verbose=2)
+
+probability_model = tf.keras.Sequential([
+  model,
+  tf.keras.layers.Softmax()
+])
+
+probability_model(testing_images[:5])
