@@ -41,9 +41,7 @@ class OpenCVProcessor:
     
     def process_labels(self, labels_list):
         label_to_index = {label: i for i, label in enumerate(np.unique(labels_list))}
-
         labels_proccessed_list = np.array([label_to_index[label] for label in labels_list])
-        labels_proccessed_list = labels_proccessed_list / 255.0
 
         return labels_proccessed_list
     

@@ -10,9 +10,6 @@ test_data_dir = 'src/images/teste'
 training_images, training_labels = image_processor.get_proccessed_images(training_data_dir)
 testing_images, testing_labels = image_processor.get_proccessed_images(test_data_dir)
 
-train_datasets = tf.data.Dataset.from_tensor_slices((training_images, training_labels)).shuffle(10000).batch(32)
-test_datasets = tf.data.Dataset.from_tensor_slices((testing_images, testing_labels)).batch(32)
-
 model = keras.models.Sequential([
     keras.layers.Flatten(input_shape=(28, 28)),
     keras.layers.Dense(128, activation='relu'),
