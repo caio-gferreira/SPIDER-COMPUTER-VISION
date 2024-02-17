@@ -2,6 +2,7 @@ import cv2
 import os
 import numpy as np
 import tensorflow as tf
+import re
 
 class OpenCVProcessor:
     def get_proccessed_images(self, folder):
@@ -9,6 +10,8 @@ class OpenCVProcessor:
 
         images_proccessed = self.process_images(images)
         labels_proccessed = self.process_labels(labels)
+
+        print('\nLabels processadas:', labels_proccessed)
 
         return images_proccessed, labels_proccessed
 
@@ -23,7 +26,7 @@ class OpenCVProcessor:
             if image_spider is not None:
                 list_images_spiders.append(image_spider)
                 list_labels_spiders_images.append(label_spider_image)
-    
+                
         return list_images_spiders, list_labels_spiders_images
 
     def process_images(self, images_list):
@@ -40,10 +43,13 @@ class OpenCVProcessor:
         return scaled_image_pixels
     
     def process_labels(self, labels_list):
-        label_to_index = {label: i for i, label in enumerate(np.unique(labels_list))}
-        labels_proccessed_list = np.array([label_to_index[label] for label in labels_list])
+        labels_proccessed_list = []
+        for label in labels_list:
 
-        return labels_proccessed_list
+            if re.match('aranha.*', label):
+                labels_proccessed_list.append(0)
+
+        return np.array(labels_proccessed_list)
     
     def format_image(self, image):
         resized_image = cv2.resize(image, (28, 28))
