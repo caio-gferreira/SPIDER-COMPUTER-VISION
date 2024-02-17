@@ -12,7 +12,6 @@ class OpenCVProcessor:
 
         return images_proccessed, labels_proccessed
 
-
     def load_images(self, folder):
         list_images_spiders = []
         list_labels_spiders_images = []
@@ -35,10 +34,10 @@ class OpenCVProcessor:
            images_formateds_list.append(formated_image)
         
         images_proccesseds_list = np.array(images_formateds_list)
-        images_proccesseds_list = images_proccesseds_list[..., tf.newaxis].astype("float32")
-        images_proccesseds_list = images_proccesseds_list / 255.0
 
-        return images_proccesseds_list
+        scaled_image_pixels = images_proccesseds_list / 255.0
+
+        return scaled_image_pixels
     
     def process_labels(self, labels_list):
         label_to_index = {label: i for i, label in enumerate(np.unique(labels_list))}
