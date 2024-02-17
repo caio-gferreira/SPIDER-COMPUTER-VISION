@@ -1,7 +1,6 @@
 import cv2
 import os
 import numpy as np
-import tensorflow as tf
 import re
 
 class OpenCVProcessor:
@@ -10,8 +9,6 @@ class OpenCVProcessor:
 
         images_proccessed = self.process_images(images)
         labels_proccessed = self.process_labels(labels)
-
-        print('\nLabels processadas:', labels_proccessed)
 
         return images_proccessed, labels_proccessed
 
@@ -46,8 +43,11 @@ class OpenCVProcessor:
         labels_proccessed_list = []
         for label in labels_list:
 
-            if re.match('aranha.*', label):
+            if re.match('armadeira.*', label):
                 labels_proccessed_list.append(0)
+
+            if re.match('viuva.*', label):
+                labels_proccessed_list.append(1)
 
         return np.array(labels_proccessed_list)
     
