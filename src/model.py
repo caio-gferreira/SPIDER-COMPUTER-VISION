@@ -1,47 +1,62 @@
 import tensorflow as tf
-from tensorflow import keras
-from services.open_cv_proccessor import OpenCVProcessor
+from keras import layers, models
+import cv2
+import numpy as np
 import os
 
-image_processor = OpenCVProcessor()
+def load_images(directory, label):
+    images = []
+    labels = []
+    for filename in os.listdir(directory):
+        if filename.endswith(".jpg") or filename.endswith(".jpeg") or filename.endswith(".png"):
+            img = cv2.imread(os.path.join(directory, filename))
+            img = cv2.resize(img, (150, 150))
+            images.append(img)
+            labels.append(label)
+    return images, labels
 
-training_data_dir = 'src/images/treinamento'
-test_data_dir = 'src/images/teste'
+spider_images, spider_labels = load_images("src/images/aranha", 0)
+ant_images, ant_labels = load_images("src/images/formiga", 1)
 
-train_images, train_labels = image_processor.get_proccessed_images(training_data_dir)
-test_images, test_labels = image_processor.get_proccessed_images(test_data_dir)
 
-def create_model():
-    model = keras.Sequential([
-        keras.layers.Flatten(input_shape=(28, 28)),
-        keras.layers.Dense(128, activation=tf.nn.sigmoid),
-        keras.layers.Dense(16, activation=tf.nn.sigmoid),
-        keras.layers.Dense(2, activation=tf.nn.softmax)
-    ])
+images = np.array(spider_images + ant_images)
+labels = np.array(spider_labels + ant_labels)
 
-    model.compile(optimizer='adam',
-                loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True),
-                metrics=[tf.keras.metrics.SparseCategoricalAccuracy()])
-    
-    return model
+indices = np.arange(len(images))
+np.random.shuffle(indices)
+images = images[indices]
+labels = labels[indices]
 
-def save_checkpoint_model(model, checkpoint_path):
-    cp_callback = tf.keras.callbacks.ModelCheckpoint(filepath=checkpoint_path,
-                                                    save_weights_only=True,
-                                                    verbose=1)
+split = int(0.8 * len(images))
+X_train, X_test = images[:split], images[split:]
+y_train, y_test = labels[:split], labels[split:]
 
-    model.fit(train_images, 
-            train_labels,  
-            epochs=10,
-            validation_data=(test_images, test_labels),
-            callbacks=[cp_callback])
-    
-    return model
+model = models.Sequential([
+    layers.Conv2D(32, (3, 3), activation='relu', input_shape=(150, 150, 3)),
+    layers.MaxPooling2D((2, 2)),
+    layers.Conv2D(64, (3, 3), activation='relu'),
+    layers.MaxPooling2D((2, 2)),
+    layers.Conv2D(128, (3, 3), activation='relu'),
+    layers.MaxPooling2D((2, 2)),
+    layers.Conv2D(128, (3, 3), activation='relu'),
+    layers.MaxPooling2D((2, 2)),
+    layers.Flatten(),
+    layers.Dense(512, activation='relu'),
+    layers.Dense(1, activation='sigmoid')
+])
 
-# Create and train a new model instance.
-model = create_model()
-model.fit(train_images, train_labels, epochs=5)
+model.compile(optimizer='adam',
+              loss='binary_crossentropy',
+              metrics=['accuracy'])
 
-# Save the entire model as a `.keras` zip archive.
-model.save('./src/model/v1.keras')
+model.fit(X_train, y_train, epochs=10, batch_size=32)
 
+test_loss, test_acc = model.evaluate(X_test, y_test)
+print('Test accuracy:', test_acc)
+
+# img = cv2.imread('src/test.jpeg')
+# img = cv2.resize(img, (150, 150))
+# img = np.expand_dims(img, axis=0)
+# prediction = model.predict(img)
+
+# print(prediction)
