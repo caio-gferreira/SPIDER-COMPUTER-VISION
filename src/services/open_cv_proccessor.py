@@ -43,10 +43,10 @@ class OpenCVProcessor:
         labels_proccessed_list = []
         for label in labels_list:
 
-            if re.match('armadeira.*', label):
+            if re.match('aranha.*', label):
                 labels_proccessed_list.append(0)
 
-            if re.match('viuva.*', label):
+            if re.match('tesourinha.*', label):
                 labels_proccessed_list.append(1)
 
         return np.array(labels_proccessed_list)

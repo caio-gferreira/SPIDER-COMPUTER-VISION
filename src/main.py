@@ -1,66 +1,29 @@
 import tensorflow as tf
-import matplotlib
-import matplotlib.pyplot as plt
-from tensorflow import keras
-from services.open_cv_proccessor import OpenCVProcessor
+from flask import Flask, request, jsonify
+import numpy as np
+from PIL import Image
+import io
+import os
+app = Flask(__name__)
 
-matplotlib.rcParams['figure.dpi'] = 150
+model = tf.keras.models.load_model('src/v1.keras')
 
-image_processor = OpenCVProcessor()
+@app.route('/predict', methods=['POST'])
+def predict_image():
+    file = request.files['image']
+    image_data = file.read()
 
-training_data_dir = 'src/images/treinamento'
-test_data_dir = 'src/images/teste'
+    image = Image.open(io.BytesIO(image_data))
+    image = image.resize((224, 224))
+    image = np.array(image) / 255.0
 
-training_images, training_labels = image_processor.get_proccessed_images(training_data_dir)
-testing_images, testing_labels = image_processor.get_proccessed_images(test_data_dir)
+    image = np.expand_dims(image, axis=0)
 
-model = keras.Sequential([
-    keras.layers.Flatten(input_shape=(28, 28)),
-    keras.layers.Dense(128, activation=tf.nn.sigmoid),
-    keras.layers.Dense(16, activation=tf.nn.sigmoid),
-    keras.layers.Dense(2, activation=tf.nn.softmax)
-])
+    predictions = model.predict(image)
 
-predictions = model(training_images)
+    predicted_class = np.argmax(predictions[0])
 
-loss_fn = tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True)
-loss_fn(training_labels, predictions)
+    return jsonify({'predicted_class': int(predicted_class)})
 
-model.compile(optimizer='adam',
-              loss=loss_fn,
-              metrics=['accuracy'])
-
-history = model.fit(training_images, training_labels, 
-                    epochs=10,
-                    verbose=1,
-                    validation_data=(testing_images, testing_labels),
-                    callbacks=[keras.callbacks.EarlyStopping(
-                        monitor='val_loss',
-                        patience=3
-                    )])
-
-plt.plot(history.history['accuracy'])
-plt.plot(history.history['val_accuracy'])
-plt.title('Acurácia do Modelo')
-plt.ylabel('Acurácia')
-plt.xlabel('Época')
-plt.legend(['Treino', 'Teste'], loc='upper left')
-plt.show()
-
-# Plot custo de treino e validação
-plt.plot(history.history['loss'])
-plt.plot(history.history['val_loss'])
-plt.title('Custo do Modelo')
-plt.ylabel('Custo')
-plt.xlabel('Época')
-plt.legend(['Treino', 'Teste'], loc='upper left')
-plt.show()
-
-model.evaluate(testing_images,  testing_labels, verbose=1)
-
-probability_model = tf.keras.Sequential([
-  model,
-  tf.keras.layers.Softmax()
-])
-
-probability_model(testing_images)
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=5000)
