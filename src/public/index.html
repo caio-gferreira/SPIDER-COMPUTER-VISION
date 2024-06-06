@@ -3,17 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="./style.css">
     <title>Animal Recognizer</title>
 </head>
 <body>
     <h1>Upload an Image for Animal Recognition</h1>
     <form id="uploadForm" enctype="multipart/form-data">
-        <div class="imageInput">
-            <input class="imageInput" type="file" id="imageInput" name="image" accept="image/*" required>
-        </div>
-        <div class="submitButon">
-            <button class="submit" type="submit">Upload and Predict</button>
+        <div class="divForm" >
+            <div class="imageInput">
+                <input class="imageInput" type="file" id="imageInput" name="image" accept="image/*"  required> 
+            </div>
+            <div class="submitButon">
+                <button class="submit" type="submit">Upload and Predict</button>
+            </div>
         </div>
     </form>
     <div class="result" id="result"></div>
@@ -35,7 +37,7 @@
             .then(data => {
                 console.log(data)
                 const resultDiv = document.getElementById('result');
-                resultDiv.innerHTML = `Predicted Class: ${data.predicted_class}`;
+                resultDiv.innerHTML = `Com base nessa imagem, tenho: ${data.score}% de certeza, de que é uma ${data.specie}`;
     
                 const imageDiv = document.getElementById('image');
                 imageDiv.innerHTML = `<img src="data:image/png;base64,${data.image}" alt="Uploaded Image"/>`;

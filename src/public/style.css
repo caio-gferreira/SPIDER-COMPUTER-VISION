@@ -31,16 +31,28 @@ label {
     color: #555;
 }
 
+.divForm {
+    border-radius: 100px;
+}
+
+.imageInput {
+    display: flex;
+    justify-content: center;
+}
 input[type="file"] {
-    width: 100%;
     padding: 10px;
     font-size: 16px;
     border-radius: 5px;
     border: 1px solid #ccc;
 }
 
+.submitButon {
+    display: flex;
+    justify-content: center;
+    margin: 10px;
+}
 button {
-    width: 100%;
+    width: 20%;
     padding: 10px;
     background-color: #007bff;
     color: #fff;
@@ -55,8 +67,15 @@ button:hover {
 }
 
 #result {
+    display: flex;
+    justify-content: center;
     margin-top: 20px;
     font-weight: bold;
+}
+
+.image {
+    display: flex;
+    justify-content: center;
 }
 
 #animalImage img,
