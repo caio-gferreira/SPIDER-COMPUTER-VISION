@@ -1,6 +1,8 @@
 import tensorflow as tf
-from keras import layers, models
+from tensorflow import keras
+from keras import layers
 import cv2
+import matplotlib.pyplot as plt
 import numpy as np
 import os
 
@@ -31,7 +33,7 @@ split = int(0.8 * len(images))
 X_train, X_test = images[:split], images[split:]
 y_train, y_test = labels[:split], labels[split:]
 
-model = models.Sequential([
+model = keras.Sequential([
     layers.Conv2D(32, (3, 3), activation='relu', input_shape=(150, 150, 3)),
     layers.MaxPooling2D((2, 2)),
     layers.Conv2D(64, (3, 3), activation='relu'),
@@ -50,13 +52,7 @@ model.compile(optimizer='adam',
               metrics=['accuracy'])
 
 model.fit(X_train, y_train, epochs=10, batch_size=32)
+model.save('v1.keras')
 
 test_loss, test_acc = model.evaluate(X_test, y_test)
 print('Test accuracy:', test_acc)
-
-# img = cv2.imread('src/test.jpeg')
-# img = cv2.resize(img, (150, 150))
-# img = np.expand_dims(img, axis=0)
-# prediction = model.predict(img)
-
-# print(prediction)
