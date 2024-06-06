@@ -43,9 +43,6 @@ def get_class_predict(detections_np):
     predict_class = class_dict[predict_index]
     predict_score = float(detections_np[0][predict_index])  # Convertendo para float
 
-    print('PREDICT_INDEX', predict_index)
-    print('PREDICT_CLASS', predict_class)
-
     return predict_class, predict_score
 
 @app.route('/predict', methods=['POST'])
@@ -63,8 +60,6 @@ def predict_image():
 
     confidence_threshold = 0.5
 
-    print('CONFIDENCE_SCORE: ', predict_score)
-
     if predict_score >= confidence_threshold:
         ymin, xmin, ymax, xmax = 0, 0, 1, 1
         xmin = int(xmin * width)
@@ -72,10 +67,6 @@ def predict_image():
         xmax = int(xmax * width)
         ymax = int(ymax * height)
 
-        print('YMIN', ymin)
-        print('XMIN', xmin)
-        print('YMAX', ymax)
-        print('XMAX', xmax)
         draw.rectangle([(xmin, ymin), (xmax, ymax)], outline="red")
 
     buffered = io.BytesIO()
@@ -83,9 +74,6 @@ def predict_image():
     img_str = base64.b64encode(buffered.getvalue()).decode('utf-8')
 
     truncated_score = "{:.2f}".format(predict_score)
-
-    if (truncated_score == "1.00"):
-        truncated_score = "100"
 
     return jsonify({
         'image': img_str,
