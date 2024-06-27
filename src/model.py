@@ -13,42 +13,57 @@ def load_images(directory, label):
         if filename.endswith(".jpg") or filename.endswith(".jpeg") or filename.endswith(".png"):
             img = cv2.imread(os.path.join(directory, filename))
             img = cv2.resize(img, (150, 150))
+            
             images.append(img)
             labels.append(label)
     return images, labels
 
-spider_images, spider_labels = load_images("src/images/aranha", 0)
+def load_image_test(directory):
+    images = []
+    labels = []
+    for filename in os.listdir(directory):
+        if filename.endswith(".jpg") or filename.endswith(".jpeg") or filename.endswith(".png"):
+            img = cv2.imread(os.path.join(directory, filename))
+            img = cv2.resize(img, (150, 150))
+
+            images.append(img)
+            label = int(os.path.splitext(filename)[0])
+            labels.append(label)
+    return images, labels
+
+
+fly_images, fly_labels = load_images("src/images/mosca", 0)
 ant_images, ant_labels = load_images("src/images/formiga", 1)
-butterfly_images, butterfly_labels = load_images("src/images/borboleta", 2)
-fly_images, fly_labels = load_images("src/images/mosca", 3)
-beetle_images, beetle_labels = load_images("src/images/tesourinha", 4)
-cockroach_images, cockroach_labels = load_images("src/images/barata", 5)
+spider_images, spider_labels = load_images("src/images/aranha", 2)
+cockroach_images, cockroach_labels = load_images("src/images/barata", 3)
+butterfly_images, butterfly_labels = load_images("src/images/borboleta", 4)
+
+test_images, test_labels = load_image_test("src/images/test_images")
+
+class_names = ['mosca', 'formiga', 'aranha', 'barata', 'borboleta']
 
 
 
-images = np.array(spider_images + ant_images + butterfly_images + fly_images + beetle_images + cockroach_images)
-labels = np.array(spider_labels + ant_labels + butterfly_labels + fly_labels + beetle_labels + cockroach_labels)
+train_images = np.array(spider_images + ant_images + butterfly_images + fly_images + cockroach_images)
+train_labels = np.array(spider_labels + ant_labels + butterfly_labels + fly_labels + cockroach_labels)
 
-indices = np.arange(len(images))
-np.random.shuffle(indices)
-images = images[indices]
-labels = labels[indices]
+test_images = np.array(test_images)
+test_labels = np.array(test_labels)
 
-split = int(0.8 * len(images))
-X_train, X_test = images[:split], images[split:]
-y_train, y_test = labels[:split], labels[split:]
+train_images = train_images / 255.0
+test_images = test_images / 255.0
 
 model = keras.Sequential([
     keras.layers.Conv2D(32, (3, 3), activation='relu', input_shape=(150, 150, 3)),
-    keras.layers.MaxPooling2D((2, 2)),
+    keras.layers.MaxPooling2D(2, 2),
     keras.layers.Conv2D(64, (3, 3), activation='relu'),
-    keras.layers.MaxPooling2D((2, 2)),
+    keras.layers.MaxPooling2D(2, 2),
     keras.layers.Conv2D(128, (3, 3), activation='relu'),
-    keras.layers.MaxPooling2D((2, 2)),
+    keras.layers.MaxPooling2D(2, 2),
     keras.layers.Conv2D(128, (3, 3), activation='relu'),
-    keras.layers.MaxPooling2D((2, 2)),
+    keras.layers.MaxPooling2D(2, 2),
     keras.layers.Flatten(),
-    keras.layers.Dense(128, activation='relu'),
+    keras.layers.Dense(512, activation='relu'),
     keras.layers.Dense(6, activation='softmax')
 ])
 
@@ -57,8 +72,10 @@ model.compile(optimizer='adam',
               loss='sparse_categorical_crossentropy',
               metrics=['accuracy'])
 
-model.fit(X_train, y_train, epochs=150, batch_size=50)
-model.save('v2_1.keras')
+model.fit(train_images, train_labels, epochs=20)
 
-test_loss, test_acc = model.evaluate(X_test, y_test)
-print('Test accuracy:', test_acc)
+test_loss, test_acc = model.evaluate(test_images,  test_labels, verbose=2)
+
+print('\nTest accuracy:', test_acc)
+
+model.save('./src/model/v3_2.keras')

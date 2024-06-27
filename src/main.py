@@ -13,14 +13,14 @@ os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 app = Flask(__name__)
 CORS(app)
 
-detector = tf.keras.models.load_model('./src/v2_1.keras')
+detector = tf.keras.models.load_model('./src/model/v3_2.keras')
+
 class_dict = {
-    0: "aranha",
+    0: "mosca",
     1: "formiga",
-    2: "borboleta",
-    3: "mosca",
-    4: "tesourinha",
-    5: "barata"
+    2: "aranha",
+    3: "barata",
+    4: "borboleta"
 }
 
 def process_image(image_data):
@@ -74,7 +74,8 @@ def predict_image():
     img_str = base64.b64encode(buffered.getvalue()).decode('utf-8')
 
     truncated_score = "{:.2f}".format(predict_score)
-
+    print(predict_class)
+    print(truncated_score)
     return jsonify({
         'image': img_str,
         'specie': predict_class,
