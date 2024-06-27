@@ -41,7 +41,7 @@ def detect_object(image):
 def get_class_predict(detections_np):
     predict_index = np.argmax(detections_np)
     predict_class = class_dict[predict_index]
-    predict_score = float(detections_np[0][predict_index])  # Convertendo para float
+    predict_score = float(detections_np[0][predict_index])
 
     return predict_class, predict_score
 
