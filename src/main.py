@@ -55,22 +55,10 @@ def predict_image():
 
     predict_class, predict_score = get_class_predict(detections)
 
-    draw = ImageDraw.Draw(image)
-    width, height = image.size
-
-    confidence_threshold = 0.5
-
-    if predict_score >= confidence_threshold:
-        ymin, xmin, ymax, xmax = 0, 0, 1, 1
-        xmin = int(xmin * width)
-        ymin = int(ymin * height)
-        xmax = int(xmax * width)
-        ymax = int(ymax * height)
-
-        draw.rectangle([(xmin, ymin), (xmax, ymax)], outline="red")
+    img_resized = image.resize((155, 155))
 
     buffered = io.BytesIO()
-    image.save(buffered, format="PNG")
+    img_resized.save(buffered, format="PNG")
     img_str = base64.b64encode(buffered.getvalue()).decode('utf-8')
 
     truncated_score = "{:.2f}".format(predict_score)
