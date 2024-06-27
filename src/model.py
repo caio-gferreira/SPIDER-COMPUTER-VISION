@@ -42,8 +42,6 @@ test_images, test_labels = load_image_test("src/images/test_images")
 
 class_names = ['mosca', 'formiga', 'aranha', 'barata', 'borboleta']
 
-
-
 train_images = np.array(spider_images + ant_images + butterfly_images + fly_images + cockroach_images)
 train_labels = np.array(spider_labels + ant_labels + butterfly_labels + fly_labels + cockroach_labels)
 
@@ -64,7 +62,7 @@ model = keras.Sequential([
     keras.layers.MaxPooling2D(2, 2),
     keras.layers.Flatten(),
     keras.layers.Dense(512, activation='relu'),
-    keras.layers.Dense(6, activation='softmax')
+    keras.layers.Dense(5, activation='softmax')
 ])
 
 
