@@ -61,13 +61,12 @@ def predict_image():
     img_resized.save(buffered, format="PNG")
     img_str = base64.b64encode(buffered.getvalue()).decode('utf-8')
 
-    truncated_score = "{:.2f}".format(predict_score)
     print(predict_class)
-    print(truncated_score)
+
     return jsonify({
         'image': img_str,
         'specie': predict_class,
-        'score': truncated_score,
+        'score': predict_score * 100,
     })
 
 
